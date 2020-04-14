@@ -9,6 +9,7 @@ About Final Project:
   1. Contains two screens which include New expense addition and Expense Summary
   
   2.Currently New Expense addition feature is working, Summary of expenses has not yet been implemnted
+  
   3.Firebase Database is functioning and has been implemented in to the App.
   
   
