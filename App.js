@@ -5,6 +5,7 @@ import { Component } from 'react';
 import { NavigationContainer, StackActions } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Firebase from 'firebase';
+import { FlatList } from 'react-native-gesture-handler';
 
 
 let config = {
@@ -21,7 +22,10 @@ let config = {
 let app = Firebase.initializeApp(config);
 export const db = app.database();
 
-let listPurchases = db.ref('/purchases/');
+let listPurchases = db.ref('/purchases');
+let info2 = [];
+
+let keys = ["Date: ", "Description: ", "Place: ", "Type of Purchase: ", "Value: "];
 
 
 function HomeScreen({ navigation }){
@@ -36,64 +40,100 @@ function HomeScreen({ navigation }){
       <TouchableHighlight
         style={styles.button}
           underlayColor="white"
-          onPress={() => navigation.navigate('Summary of expenses')}
-        >
+          onPress={() => navigation.navigate('Summary of expenses')}>
           <Text style={styles.buttonText}>Summary</Text>
-      
-      
       </TouchableHighlight>
 
       <Text>{''}</Text>
       <TouchableHighlight
         style={styles.button}
           underlayColor="white"
-          onPress={() => navigation.navigate('New Expenses')}
-        >
+          onPress={() => navigation.navigate('New Expenses')}>
           <Text style={styles.buttonText}>Add New Expenses</Text>
-
       </TouchableHighlight>
-
-
     </View>
   );
 }
 
-function Summary({ navigation }){
+class Summary extends Component{ 
+  constructor(props){
+    super(props);
+    state = {
+      value: [],
+      type: [],
+      place: [],
+      description: [],
+      date: [],
+   }
+};
+
+componentDidMount() {
+  info2 = [];
+  let i = 0;
+  let k = 1;
+  let info = listPurchases;
+  info.on("value", snapshot => {
+    snapshot.forEach((childSub) =>{
+      let key = childSub.key;
+      childSub.forEach((child2) => {
+        let key2 = child2.val();
+        console.log("Key is " + key + " Data is " + key2);
+        if(i == 4){
+          info2.push(keys[i] + key2);
+          i = 0;
+          info2.push('______________________________________________________');
+        }
+        else if (i == 0) {
+          info2.push("Purchase #" + k);
+          info2.push(keys[i] + key2);
+          k++;
+          i++;
+        }
+        else{
+          info2.push(keys[i] + key2);
+          i++;
+        }
+      });
+    });
+  });
+}
 
 
+render(){
   return(
-  <View style={styles.container}>
+  <View style={styles.container}>   
       <Text style={styles.text}>Welcome To The Expenses Summary Page</Text>
       <Text style={styles.text}>Here you will find all expenses that have been added!</Text>
+      <Text style={styles.text}> List of expenses: </Text>
 
+      <FlatList style={styles.list}
+        data={info2}
+        renderItem={({ item }) => (
+        <Text style={styles.listText}>{item}</Text>
+        )}
+      />
 
-
-
-
-
-      <Text>{''}</Text>
+    <Text>{''}</Text>
       <TouchableHighlight
         style={styles.button}
           underlayColor="white"
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => this.props.navigation.navigate('Home')}
         >
           <Text style={styles.buttonText}>Home</Text>
-      
-      
-      </TouchableHighlight>
 
+      </TouchableHighlight>
       <Text>{''}</Text>
       <TouchableHighlight
         style={styles.button}
           underlayColor="white"
-          onPress={() => navigation.navigate('New Expenses')}
+          onPress={() => this.props.navigation.navigate('New Expenses')}
         >
           <Text style={styles.buttonText}>Add New Expenses</Text>
 
       </TouchableHighlight>
-
   </View>
   );
+}
 }
 
 
@@ -144,8 +184,8 @@ class NewExpenses extends Component{
   };
 
   handleSubmit = () => {
-    let addItem = (Value, Place, Type, Date, Description) => {
-      db.ref('/purchases/').push({
+    let addItem = (Description, Date, Place, Type, Value) => {
+      db.ref('/purchases').push({
         value:Value,
         place:Place,
         type:Type,
@@ -154,7 +194,8 @@ class NewExpenses extends Component{
       });
     };
 
-    addItem(this.state.value, this.state.place, this.state.type, this.state.date, this.state.description);
+
+    addItem(this.state.description, this.state.date, this.state.place, this.state.type, this.state.value);
     Alert.alert('Purhcase saved successfully');
   };
 
@@ -239,8 +280,6 @@ render(){
   }
 }
 
-
-
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -271,12 +310,17 @@ const styles = StyleSheet.create({
   },
 
   listText:{
-    fontSize:16,
+    fontSize:18,
     marginTop: 10,
+    textAlign: "center",
+    
+    
   },
 
   list:{
-    width:"75%"
+    backgroundColor:"white",
+    borderWidth: 8,
+    borderColor: "lightblue",
     },
 
   image:{
