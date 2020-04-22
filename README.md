@@ -12,5 +12,17 @@ About Final Project:
   
   3.Firebase Database is functioning and has been implemented in to the App.
   
+  *New Things added on 4/21/2020*
+  1. The Summary screen has beeen completely implemented
+  
+  2. Firebase information is pushed to arrays and then displayed by number of purchases, and displays all information
+  
+  3. Summary Display has been styled and formatted.
+  
+  
+  *Bugs that may happen...*
+    There are times that when adding a new item through the "Add new Expenses App," copies of the others are also displayed. This is often fixed by exiting the screen and returning.
+  
+  As of now that is the only bug that seems to happen.
   
   This project is due on April 24th
